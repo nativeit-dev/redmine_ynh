@@ -5,7 +5,8 @@
 #=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
-source _common.sh
+
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -25,18 +26,17 @@ ynh_abort_if_errors
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get $app domain)
-path_url=$(ynh_app_setting_get $app path)
-final_path=$(ynh_app_setting_get $app final_path)
-db_name=$(ynh_app_setting_get $app psql_db)
-db_pwd=$(ynh_app_setting_get $app psqlpwd)
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+path_url=$(ynh_app_setting_get --app=$app --key=path)
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_user=$db_name
+db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
 
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
 #=================================================
 
-ynh_webpath_available $domain $path_url \
-	|| ynh_die "Path not available: ${domain}${path_url}"
 test ! -d $final_path \
 	|| ynh_die "There is already a directory: $final_path "
 
@@ -51,6 +51,7 @@ ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
+
 var_root=/home/yunohost.app/$app
 ynh_restore_file "$final_path"
 ynh_restore_file "$var_root"
@@ -69,7 +70,7 @@ ynh_psql_execute_file_as_root ./db.sql "$db_name"
 #=================================================
 
 # Create the dedicated user (if not existing)
-ynh_system_user_create $app
+ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
 # RESTORE USER RIGHTS
@@ -85,7 +86,7 @@ chown -R $app: $final_path
 #=================================================
 
 # Define and install dependencies
-ynh_install_app_dependencies postgresql ruby-dev zlib1g-dev libpq-dev
+ynh_install_app_dependencies $pkg_dependencies
 
 ynh_print_info "Installing Rails & Bunlder..."
 

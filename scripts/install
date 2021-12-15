@@ -121,7 +121,7 @@ ynh_add_nginx_config
 #=================================================
 ynh_script_progression --message="Adding a configuration file..." --weight=1
 
-ynh_add_config --template="../conf/database.example.yml" --destination="$final_path/config/database.yml"
+ynh_add_config --template="../conf/database.yml.example" --destination="$final_path/config/database.yml"
 
 chmod 400 "$final_path/config/database.yml"
 chown $app:$app "$final_path/config/database.yml"
@@ -131,7 +131,7 @@ chown $app:$app "$final_path/config/database.yml"
 #=================================================
 ynh_print_info "Install Redmine Conffiguration..."
 
-ynh_add_config --template="../conf/configuration.example.yml" --destination="$final_path/config/configuration.yml"
+ynh_add_config --template="../conf/configuration.yml.example" --destination="$final_path/config/configuration.yml"
 
 #=================================================
 # COMPILE REDMINE
